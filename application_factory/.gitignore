@@ -1,0 +1,85 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Environment Variables and Secrets
+.env
+.env.local
+.env.production
+.env.staging
+*.key
+*.pem
+.venv
+venv/
+venv.bak/
+secrets.toml
+
+# Streamlit
+.streamlit/secrets.toml
+.streamlit/credentials.toml
+
+# Vector Stores and Data
+data/vector_store/
+data/*.faiss
+data/*.pkl
+*.index
+
+# Generated Files
+generated_resumes/
+generated_cover_letters/
+temp_*.pdf
+preview_*.pdf
+
+# User Data
+master_resume.txt
+job_description.txt
+uploaded_files/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Jupyter Notebooks
+.ipynb_checkpoints 
