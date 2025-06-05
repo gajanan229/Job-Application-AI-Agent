@@ -337,4 +337,126 @@ def get_state_summary(state: GraphStateRAG) -> Dict[str, Any]:
         "has_error": bool(state.get("error_message")),
         "error_message": state.get("error_message"),
         "output_folder": state.get("job_specific_output_folder_path", "")
+    }
+
+
+def update_vector_store_path(state: GraphStateRAG, vector_store_path: str) -> GraphStateRAG:
+    """
+    Update the vector store path in the state.
+    
+    Args:
+        state (GraphStateRAG): Current state
+        vector_store_path (str): Path to the vector store
+        
+    Returns:
+        GraphStateRAG: Updated state
+    """
+    updated_state = state.copy()
+    updated_state["vector_store_path"] = vector_store_path
+    
+    # Update processing metadata
+    updated_state["processing_metadata"]["vector_store_created"] = True
+    updated_state["processing_metadata"]["vector_store_path"] = vector_store_path
+    
+    logger.info(f"Vector store path updated: {vector_store_path}")
+    return updated_state
+
+
+def update_retrieved_contexts(state: GraphStateRAG, section: str, contexts: List[str]) -> GraphStateRAG:
+    """
+    Update retrieved contexts for a specific section.
+    
+    Args:
+        state (GraphStateRAG): Current state
+        section (str): The section name (e.g., 'summary_context', 'skills_context')
+        contexts (List[str]): List of retrieved text chunks
+        
+    Returns:
+        GraphStateRAG: Updated state
+    """
+    updated_state = state.copy()
+    updated_state["retrieved_contexts"][section] = contexts
+    
+    logger.debug(f"Updated contexts for {section}: {len(contexts)} chunks")
+    return updated_state
+
+
+def update_resume_section(state: GraphStateRAG, section: str, content: str) -> GraphStateRAG:
+    """
+    Update a specific resume section.
+    
+    Args:
+        state (GraphStateRAG): Current state
+        section (str): The section name (e.g., 'summary', 'skills')
+        content (str): The generated content
+        
+    Returns:
+        GraphStateRAG: Updated state
+    """
+    updated_state = state.copy()
+    updated_state["resume_sections"][section] = content
+    
+    # Update processing metadata
+    completed_sections = len([s for s in updated_state["resume_sections"].values() if s])
+    updated_state["processing_metadata"][f"resume_{section}_completed"] = True
+    updated_state["processing_metadata"]["resume_completion_progress"] = f"{completed_sections}/5"
+    
+    logger.info(f"Resume section '{section}' updated (progress: {completed_sections}/5)")
+    return updated_state
+
+
+def validate_vector_store_in_state(state: GraphStateRAG) -> bool:
+    """
+    Validate that the vector store referenced in state exists and is valid.
+    
+    Args:
+        state (GraphStateRAG): Current state
+        
+    Returns:
+        bool: True if vector store is valid
+    """
+    try:
+        from pathlib import Path
+        
+        vector_store_path = state.get("vector_store_path", "")
+        if not vector_store_path:
+            return False
+        
+        path = Path(vector_store_path)
+        if not path.exists():
+            return False
+        
+        # Check for required FAISS files
+        required_files = ["index.faiss", "index.pkl"]
+        for file_name in required_files:
+            if not (path / file_name).exists():
+                return False
+        
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error validating vector store in state: {e}")
+        return False
+
+
+def get_rag_status(state: GraphStateRAG) -> Dict[str, Any]:
+    """
+    Get detailed RAG status information.
+    
+    Args:
+        state (GraphStateRAG): Current state
+        
+    Returns:
+        Dict[str, Any]: RAG status information
+    """
+    contexts = state.get("retrieved_contexts", {})
+    
+    return {
+        "vector_store_exists": validate_vector_store_in_state(state),
+        "vector_store_path": state.get("vector_store_path", ""),
+        "contexts_retrieved": {
+            section: len(chunks) for section, chunks in contexts.items()
+        },
+        "total_contexts": sum(len(chunks) for chunks in contexts.values()),
+        "ready_for_generation": bool(state.get("vector_store_path", "") and state.get("master_resume_content", ""))
     } 

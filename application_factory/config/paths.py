@@ -208,6 +208,86 @@ class PathManager:
             return Path(custom_path)
         return self.vector_store_path
     
+    def get_master_resume_vector_store_path(self) -> Path:
+        """
+        Get the specific path for master resume vector store.
+        
+        Returns:
+            Path: Path to master resume vector store
+        """
+        return self.vector_store_path / "master_resume"
+    
+    def create_vector_store_folder(self, store_name: str) -> Path:
+        """
+        Create a vector store folder.
+        
+        Args:
+            store_name (str): Name of the vector store
+            
+        Returns:
+            Path: Path to the created vector store folder
+        """
+        sanitized_name = self.sanitize_filename(store_name)
+        store_path = self.vector_store_path / sanitized_name
+        
+        try:
+            store_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created vector store folder: {store_path}")
+            return store_path
+        except Exception as e:
+            logger.error(f"Failed to create vector store folder {store_path}: {e}")
+            raise
+    
+    def validate_vector_store_path(self, store_path: Path) -> bool:
+        """
+        Validate that a vector store path exists and contains required files.
+        
+        Args:
+            store_path (Path): Path to validate
+            
+        Returns:
+            bool: True if valid vector store path
+        """
+        if not store_path.exists():
+            return False
+        
+        # Check for required FAISS files
+        required_files = ["index.faiss", "index.pkl"]
+        for file_name in required_files:
+            if not (store_path / file_name).exists():
+                return False
+        
+        return True
+    
+    def cleanup_vector_stores(self, keep_recent: int = 5) -> None:
+        """
+        Clean up old vector stores, keeping only the most recent ones.
+        
+        Args:
+            keep_recent (int): Number of recent vector stores to keep
+        """
+        try:
+            if not self.vector_store_path.exists():
+                return
+            
+            # Get all vector store directories
+            store_dirs = [d for d in self.vector_store_path.iterdir() if d.is_dir()]
+            
+            # Sort by modification time (newest first)
+            store_dirs.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+            
+            # Remove old stores
+            for old_store in store_dirs[keep_recent:]:
+                try:
+                    import shutil
+                    shutil.rmtree(old_store)
+                    logger.info(f"Removed old vector store: {old_store}")
+                except Exception as e:
+                    logger.warning(f"Could not remove vector store {old_store}: {e}")
+                    
+        except Exception as e:
+            logger.error(f"Error during vector store cleanup: {e}")
+    
     def cleanup_temp_files(self) -> None:
         """Remove all temporary files."""
         try:
