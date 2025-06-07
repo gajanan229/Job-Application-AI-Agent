@@ -147,18 +147,22 @@ class RAGManager:
             logger.error(f"Error creating vector store: {e}")
             raise
     
-    def save_vector_store(self, vector_store: FAISS, save_path: Path) -> bool:
+    def save_vector_store(self, vector_store: FAISS, save_path) -> bool:
         """
         Save a vector store to disk.
         
         Args:
             vector_store (FAISS): The vector store to save
-            save_path (Path): Directory path to save the vector store
+            save_path: Directory path to save the vector store (str or Path)
             
         Returns:
             bool: True if successful, False otherwise
         """
         try:
+            # Convert to Path object if it's a string
+            if isinstance(save_path, str):
+                save_path = Path(save_path)
+            
             save_path.mkdir(parents=True, exist_ok=True)
             
             # Save the FAISS index
@@ -185,18 +189,22 @@ class RAGManager:
             logger.error(f"Error saving vector store: {e}")
             return False
     
-    def load_vector_store(self, load_path: Path, allow_dangerous_deserialization: bool = True) -> Optional[FAISS]:
+    def load_vector_store(self, load_path, allow_dangerous_deserialization: bool = True) -> Optional[FAISS]:
         """
         Load a vector store from disk.
         
         Args:
-            load_path (Path): Directory path containing the vector store
+            load_path: Directory path containing the vector store (str or Path)
             allow_dangerous_deserialization (bool): Whether to allow loading pickled objects
             
         Returns:
             Optional[FAISS]: The loaded vector store, or None if loading failed
         """
         try:
+            # Convert to Path object if it's a string
+            if isinstance(load_path, str):
+                load_path = Path(load_path)
+            
             if not load_path.exists():
                 logger.warning(f"Vector store path does not exist: {load_path}")
                 return None
@@ -310,17 +318,21 @@ class RAGManager:
         
         return section_queries.get(section, job_description[:500])
     
-    def validate_vector_store(self, vector_store_path: Path) -> bool:
+    def validate_vector_store(self, vector_store_path) -> bool:
         """
         Validate that a vector store exists and is properly formatted.
         
         Args:
-            vector_store_path (Path): Path to the vector store directory
+            vector_store_path: Path to the vector store directory (str or Path)
             
         Returns:
             bool: True if valid, False otherwise
         """
         try:
+            # Convert to Path object if it's a string
+            if isinstance(vector_store_path, str):
+                vector_store_path = Path(vector_store_path)
+            
             if not vector_store_path.exists():
                 return False
             
@@ -348,6 +360,34 @@ class RAGManager:
         """Clear the vector store cache."""
         self._vector_store_cache.clear()
         logger.debug("Vector store cache cleared")
+    
+    def retrieve_for_resume_section(self, section: str, job_description: str, resume_content: str, k: int = 5) -> List[str]:
+        """
+        Retrieve context for a specific resume section using temporary vector store.
+        
+        Args:
+            section (str): The resume section (skills, experience, etc.)
+            job_description (str): The job description
+            resume_content (str): The master resume content
+            k (int): Number of chunks to retrieve
+            
+        Returns:
+            List[str]: List of relevant text chunks
+        """
+        try:
+            # Create temporary vector store from resume content
+            documents = self.chunk_text(resume_content, {"source": "master_resume"})
+            vector_store = self.create_vector_store(documents)
+            
+            # Create section-specific query
+            query = self.create_section_specific_query(job_description, section)
+            
+            # Retrieve context
+            return self.get_retrieval_context(vector_store, query, k)
+            
+        except Exception as e:
+            logger.error(f"Error in retrieve_for_resume_section: {e}")
+            return []
 
 
 # Utility functions for easier access
@@ -367,13 +407,13 @@ def chunk_master_resume(resume_content: str, api_key: Optional[str] = None) -> L
     return rag_manager.chunk_text(resume_content, metadata)
 
 
-def create_resume_vector_store(resume_content: str, save_path: Path, api_key: Optional[str] = None) -> bool:
+def create_resume_vector_store(resume_content: str, save_path, api_key: Optional[str] = None) -> bool:
     """
     Convenience function to create and save a resume vector store.
     
     Args:
         resume_content (str): The master resume content
-        save_path (Path): Path to save the vector store
+        save_path: Path to save the vector store (str or Path)
         api_key (Optional[str]): API key for embeddings
         
     Returns:
@@ -397,7 +437,7 @@ def create_resume_vector_store(resume_content: str, save_path: Path, api_key: Op
 
 
 def retrieve_for_resume_section(
-    vector_store_path: Path, 
+    vector_store_path, 
     job_description: str, 
     section: str,
     k: int = 5,
@@ -407,7 +447,7 @@ def retrieve_for_resume_section(
     Convenience function to retrieve context for a specific resume section.
     
     Args:
-        vector_store_path (Path): Path to the vector store
+        vector_store_path: Path to the vector store (str or Path)
         job_description (str): The job description
         section (str): The resume section
         k (int): Number of chunks to retrieve

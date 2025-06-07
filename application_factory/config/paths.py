@@ -7,7 +7,7 @@ Handles creation, validation, and management of file paths and directories.
 import os
 import re
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)
@@ -95,24 +95,64 @@ class PathManager:
         company_name = "Company"
         position_title = "Position"
         
+        # Enhanced extraction patterns
+        company_keywords = ['company:', 'organization:', 'employer:', 'corporation:', 'firm:', 'about us:', 'at ']
+        position_keywords = ['position:', 'title:', 'role:', 'job:', 'opening:', 'opportunity:', 'seeking:']
+        
         # Try to extract company and position from first few lines
-        for i, line in enumerate(lines[:10]):  # Check first 10 lines
+        for i, line in enumerate(lines[:15]):  # Check first 15 lines
             line = line.strip()
+            line_lower = line.lower()
             
-            # Look for common patterns
-            if any(keyword in line.lower() for keyword in ['company:', 'organization:', 'employer:']):
-                company_name = line.split(':', 1)[-1].strip()
-                break
-            elif any(keyword in line.lower() for keyword in ['position:', 'title:', 'role:', 'job:']):
-                position_title = line.split(':', 1)[-1].strip()
-            elif i == 0 and len(line) > 10:  # First line might be the position
+            # Look for company patterns
+            for keyword in company_keywords:
+                if keyword in line_lower:
+                    if ':' in line:
+                        company_name = line.split(':', 1)[-1].strip()
+                    else:
+                        # Extract everything after the keyword
+                        idx = line_lower.find(keyword)
+                        if idx >= 0:
+                            company_name = line[idx + len(keyword):].strip()
+                    break
+            
+            # Look for position patterns
+            for keyword in position_keywords:
+                if keyword in line_lower:
+                    if ':' in line:
+                        position_title = line.split(':', 1)[-1].strip()
+                    else:
+                        # Extract everything after the keyword
+                        idx = line_lower.find(keyword)
+                        if idx >= 0:
+                            position_title = line[idx + len(keyword):].strip()
+                    break
+            
+            # Fallback patterns for first few lines
+            if i == 0 and len(line) > 10 and position_title == "Position":
+                # First line is often the job title
                 position_title = line
-            elif i == 1 and len(line) > 5:  # Second line might be the company
+            elif i == 1 and len(line) > 5 and company_name == "Company":
+                # Second line might be the company
                 company_name = line
         
+        # Additional cleanup for common formats
+        # Remove common prefixes/suffixes
+        for prefix in ['job title:', 'position:', 'role:', 'opening for']:
+            if position_title.lower().startswith(prefix):
+                position_title = position_title[len(prefix):].strip()
+        
+        for prefix in ['company:', 'organization:', 'employer:']:
+            if company_name.lower().startswith(prefix):
+                company_name = company_name[len(prefix):].strip()
+        
+        # Remove trailing punctuation
+        position_title = position_title.rstrip('.,;:')
+        company_name = company_name.rstrip('.,;:')
+        
         # Clean and sanitize
-        company_name = self.sanitize_filename(company_name)
-        position_title = self.sanitize_filename(position_title)
+        company_name = self.sanitize_filename(company_name) if company_name else "Company"
+        position_title = self.sanitize_filename(position_title) if position_title else "Position"
         
         return company_name, position_title
     
@@ -166,6 +206,20 @@ class PathManager:
         filename = f"{sanitized_name}_Resume.pdf"
         return job_folder / filename
     
+    def get_resume_preview_path(self, user_name: str = "Resume") -> Path:
+        """
+        Get the path for a resume preview PDF.
+        
+        Args:
+            user_name (str): User's name for the filename
+            
+        Returns:
+            Path: Path to temporary resume preview PDF
+        """
+        sanitized_name = self.sanitize_filename(user_name)
+        filename = f"{sanitized_name}_Resume_Preview.pdf"
+        return self.temp_path / filename
+    
     def get_cover_letter_path(self, job_folder: Path, user_name: str = "CoverLetter") -> Path:
         """
         Get the full path for a cover letter PDF.
@@ -180,6 +234,20 @@ class PathManager:
         sanitized_name = self.sanitize_filename(user_name)
         filename = f"{sanitized_name}_CoverLetter.pdf"
         return job_folder / filename
+    
+    def get_cover_letter_preview_path(self, user_name: str = "CoverLetter") -> Path:
+        """
+        Get the path for a cover letter preview PDF.
+        
+        Args:
+            user_name (str): User's name for the filename
+            
+        Returns:
+            Path: Path to temporary cover letter preview PDF
+        """
+        sanitized_name = self.sanitize_filename(user_name)
+        filename = f"{sanitized_name}_CoverLetter_Preview.pdf"
+        return self.temp_path / filename
     
     def get_temp_pdf_path(self, prefix: str = "temp") -> Path:
         """
@@ -287,6 +355,76 @@ class PathManager:
                     
         except Exception as e:
             logger.error(f"Error during vector store cleanup: {e}")
+    
+    def validate_pdf_path(self, pdf_path: Path) -> bool:
+        """
+        Validate that a PDF path is safe and accessible.
+        
+        Args:
+            pdf_path (Path): Path to validate
+            
+        Returns:
+            bool: True if valid PDF path
+        """
+        try:
+            # Check if path has PDF extension
+            if pdf_path.suffix.lower() != '.pdf':
+                return False
+            
+            # Validate parent directory
+            return self.validate_path(pdf_path.parent, must_exist=False)
+            
+        except Exception as e:
+            logger.error(f"Error validating PDF path {pdf_path}: {e}")
+            return False
+    
+    def create_application_package_paths(self, job_description: str, user_name: str) -> Dict[str, Path]:
+        """
+        Create all necessary paths for a complete application package.
+        
+        Args:
+            job_description (str): Job description to extract company/position
+            user_name (str): User's name for file naming
+            
+        Returns:
+            Dict[str, Path]: Dictionary of all application paths
+        """
+        try:
+            # Create job folder
+            job_folder = self.create_job_folder(job_description)
+            
+            # Generate all paths
+            paths = {
+                "job_folder": job_folder,
+                "resume_pdf": self.get_resume_path(job_folder, user_name),
+                "cover_letter_pdf": self.get_cover_letter_path(job_folder, user_name),
+                "resume_preview": self.get_resume_preview_path(user_name),
+                "cover_letter_preview": self.get_cover_letter_preview_path(user_name)
+            }
+            
+            logger.info(f"Created application package paths for job folder: {job_folder}")
+            return paths
+            
+        except Exception as e:
+            logger.error(f"Error creating application package paths: {e}")
+            return {}
+    
+    def cleanup_preview_files(self) -> None:
+        """Clean up all preview PDF files."""
+        try:
+            if not self.temp_path.exists():
+                return
+            
+            # Remove all preview PDF files
+            for pdf_file in self.temp_path.glob("*_Preview.pdf"):
+                try:
+                    pdf_file.unlink()
+                    logger.debug(f"Removed preview file: {pdf_file}")
+                except Exception as e:
+                    logger.warning(f"Could not remove preview file {pdf_file}: {e}")
+                    
+        except Exception as e:
+            logger.error(f"Error during preview cleanup: {e}")
     
     def cleanup_temp_files(self) -> None:
         """Remove all temporary files."""

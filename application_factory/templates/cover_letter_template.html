@@ -1,0 +1,77 @@
+<html>
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <style type="text/css">
+        ol{margin:0;padding:0}
+        table td,table th{padding:0}
+        .c4{margin-left:0.5pt;padding-top:0pt;text-indent:-0.5pt;padding-bottom:0pt;line-height:1.0791666666666666;orphans:2;widows:2;text-align:center}
+        .c0{color:#000000;font-weight:400;text-decoration:none;vertical-align:baseline;font-size:11pt;font-family:"Arial";font-style:normal}
+        .c2{-webkit-text-decoration-skip:none;color:#1155cc;font-weight:400;text-decoration:underline;text-decoration-skip-ink:none;font-size:10.5pt;font-family:"Times New Roman"}
+        .c6{color:#000000;font-weight:400;text-decoration:none;vertical-align:baseline;font-size:11pt;font-family:"Times New Roman";font-style:normal}
+        .c1{padding-top:0pt;padding-bottom:0pt;line-height:1.15;orphans:2;widows:2;text-align:left;height:11pt}
+        .c5{text-decoration-skip-ink:none;font-family:"Times New Roman";-webkit-text-decoration-skip:none;color:#1155cc;font-weight:400;text-decoration:underline}
+        .c8{padding-top:0pt;padding-bottom:0pt;line-height:1.15;orphans:2;widows:2;text-align:left}
+        .c9{padding-top:0pt;padding-bottom:1.8pt;line-height:1.0791666666666666;orphans:2;widows:2;text-align:center}
+        .c3{font-size:10.5pt;font-weight:400;font-family:"Times New Roman"}
+        .c11{font-size:18.5pt;font-weight:700;font-family:"Times New Roman"}
+        .c7{background-color:#ffffff;max-width:468pt;padding:72pt 72pt 72pt 72pt}
+        .c10{color:inherit;text-decoration:inherit}
+        .c12{font-weight:400;font-family:"Times New Roman"}
+        .title{padding-top:0pt;color:#000000;font-size:26pt;padding-bottom:3pt;font-family:"Arial";line-height:1.15;page-break-after:avoid;orphans:2;widows:2;text-align:left}
+        .subtitle{padding-top:0pt;color:#666666;font-size:15pt;padding-bottom:16pt;font-family:"Arial";line-height:1.15;page-break-after:avoid;orphans:2;widows:2;text-align:left}
+        li{color:#000000;font-size:11pt;font-family:"Arial"}
+        p{margin:0;color:#000000;font-size:11pt;font-family:"Arial"}
+        h1{padding-top:20pt;color:#000000;font-size:20pt;padding-bottom:6pt;font-family:"Arial";line-height:1.15;page-break-after:avoid;orphans:2;widows:2;text-align:left}
+        h2{padding-top:18pt;color:#000000;font-size:16pt;padding-bottom:6pt;font-family:"Arial";line-height:1.15;page-break-after:avoid;orphans:2;widows:2;text-align:left}
+        h3{padding-top:16pt;color:#434343;font-size:14pt;padding-bottom:4pt;font-family:"Arial";line-height:1.15;page-break-after:avoid;orphans:2;widows:2;text-align:left}
+        h4{padding-top:14pt;color:#666666;font-size:12pt;padding-bottom:4pt;font-family:"Arial";line-height:1.15;page-break-after:avoid;orphans:2;widows:2;text-align:left}
+        h5{padding-top:12pt;color:#666666;font-size:11pt;padding-bottom:4pt;font-family:"Arial";line-height:1.15;page-break-after:avoid;orphans:2;widows:2;text-align:left}
+        h6{padding-top:12pt;color:#666666;font-size:11pt;padding-bottom:4pt;font-family:"Arial";line-height:1.15;page-break-after:avoid;font-style:italic;orphans:2;widows:2;text-align:left}
+    </style>
+</head>
+<body class="c7 doc-content">
+    <div>
+        <!-- Header with Name and Contact -->
+        <p class="c9"><span class="c11">{{ name }}</span></p>
+        <p class="c4"><span class="c3">{{ location }}</span></p>
+        <p class="c4">
+            <span class="c3">{{ phone }} | </span>
+            <span class="c2"><a class="c10" href="mailto:{{ email }}">{{ email }}</a></span>
+            <span class="c3"> | </span>
+            {% if github %}
+            <span class="c2"><a class="c10" href="{{ github }}">GitHub</a></span>
+            <span class="c3"> | </span>
+            {% endif %}
+            <span class="c2"><a class="c10" href="{{ linkedin }}">Linkedin</a></span>
+            {% if website %}
+            <span class="c12"> | </span>
+            <span class="c5"><a class="c10" href="{{ website }}">{{ website_display }}</a></span>
+            {% endif %}
+        </p>
+        <p class="c1"><span class="c0"></span></p>
+    </div>
+    
+    <!-- Date -->
+    <p class="c8"><span class="c0">{{ date }}</span></p>
+    <p class="c1"><span class="c0"></span></p>
+    
+    <!-- Introduction -->
+    <p class="c8"><span class="c0">{{ introduction | safe }}</span></p>
+    <p class="c1"><span class="c0"></span></p>
+    
+    <!-- Body Paragraphs -->
+    {% for paragraph in body_paragraphs %}
+    <p class="c8"><span class="c0">{{ paragraph | safe }}</span></p>
+    <p class="c1"><span class="c0"></span></p>
+    {% endfor %}
+    
+    <!-- Conclusion -->
+    <p class="c8"><span class="c0">{{ conclusion | safe }}</span></p>
+    <p class="c1"><span class="c0"></span></p>
+    
+    <!-- Closing -->
+    <p class="c8"><span class="c0">Sincerely,</span></p>
+    <p class="c8"><span class="c0">{{ name }}</span></p>
+    <p class="c1"><span class="c0"></span></p>
+</body>
+</html> 

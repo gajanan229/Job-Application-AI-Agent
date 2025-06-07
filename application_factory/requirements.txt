@@ -1,15 +1,23 @@
 # Core Framework Dependencies
-streamlit>=1.28.0
-langgraph>=0.0.40
+streamlit>=1.30.0
+langgraph>=0.0.66
 langchain>=0.1.0
 langchain-google-genai>=1.0.0
 
 # RAG and Vector Store Dependencies
 faiss-cpu>=1.7.4
-langchain-community>=0.0.20
+langchain-community>=0.0.12
 
-# PDF Generation
-reportlab>=4.0.0
+# Phase 4: LLM Integration & Prompt Engineering
+google-generativeai>=0.8.0
+google-api-python-client>=2.170.0
+tqdm>=4.67.0
+
+# PDF Generation - HTML to PDF Approach
+reportlab>=4.0.0  # Keep for backwards compatibility
+# weasyprint>=62.0  # HTML to PDF conversion (requires system dependencies)
+pdfkit>=1.0.0     # Alternative HTML to PDF conversion (easier Windows setup)
+jinja2>=3.1.0     # Template rendering
 
 # Utility Dependencies
 python-dotenv>=1.0.0
@@ -21,4 +29,15 @@ tiktoken>=0.5.0
 # Development Dependencies (optional)
 pytest>=7.4.0
 black>=23.0.0
-flake8>=6.0.0 
+flake8>=6.0.0
+
+# Phase 5 - LangGraph Workflow Dependencies
+langchain-core>=0.1.0
+
+# Additional dependencies for enhanced workflow
+aiosqlite>=0.19.0
+
+# Utilities
+click>=8.1.0
+colorlog>=6.7.0
+rich>=13.7.0 

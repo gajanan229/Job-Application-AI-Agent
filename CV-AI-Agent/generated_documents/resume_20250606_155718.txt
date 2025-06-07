@@ -1,0 +1,69 @@
+Gajanan Vigneswaran
+Whitby, ON | (647) 451-9995 | gajanan.vig@gmail.com | github.com/gajanan229
+
+**Summary**
+
+Highly motivated and results-oriented third-year Computer Science student at Toronto Metropolitan University (TMU) seeking a QA Automation Engineer Co-op position.  Possessing a strong foundation in software development concepts, OOP principles, and testing methodologies, I am eager to contribute to the development and maintenance of automation frameworks for API, web, and mobile applications.  My experience in Python, Java, and various testing frameworks, coupled with my proactive problem-solving skills and commitment to continuous learning, make me a strong candidate for this role.
+
+**Skills**
+
+* **Programming Languages:** Python (TensorFlow, NumPy, Scikit-learn, Flask), Java (JavaFX), C, JavaScript (React.js, Node.js, Express.js, Axios), HTML, CSS
+* **Testing Frameworks:** JUnit, TestNG
+* **Automation Frameworks:**  (Highlight any relevant experience here, even if limited.  If none, remove this line)
+* **API Testing:** REST APIs, GraphQL (mention if experienced)
+* **Mobile Testing:** Android & iOS (mention if experienced)
+* **Databases:** SQL, PostgreSQL
+* **Version Control:** Git, GitHub
+* **Tools & Technologies:**  Jenkins/CircleCI (mention if experienced),  Bash Scripting (mention if experienced), Xcode/Android Studio (mention if experienced),  JIRA (mention if experienced),  Docker (mention if experienced), Selenium (mention if experienced)
+* **Operating Systems:** Unix/Linux
+
+
+**Education**
+
+Toronto Metropolitan University (TMU), Toronto, ON
+Bachelor of Science in Computer Science (BS), GPA: 4.09/4.33  | Expected Graduation: April 2027
+
+**Relevant Coursework:**
+
+* Object-Oriented Programming in Java
+* Object-Oriented Analysis and Design in Java
+* Data Structures and Algorithms
+* Introduction to Computer Science in Python
+* Introduction to C
+* Introduction to UNIX
+* Digital System Design with VHDL
+* Computer Architecture with Assembly
+
+
+**Projects**
+
+* **Movie Rating and Recommendations Website (Python, Flask, Scikit-learn, SQL):** Developed a Flask web application featuring user authentication, a movie data API, and a content-based recommendation system using Scikit-learn. This project demonstrated proficiency in back-end development, API integration, and machine learning techniques.
+
+* **Digit Recognition App (Python, TensorFlow, Keras, Tkinter):** Created a GUI application using Tkinter that trains a convolutional neural network on a dataset of 60,000 handwritten digits using TensorFlow and Keras.  This project showcases experience with deep learning and GUI development.
+
+* **RESTful Blog API & Client with Authentication (Node.js, Express, PostgreSQL, Passport.js):** Developed a RESTful API with user authentication (local and potentially Google OAuth) using Passport.js.  This demonstrates experience with building and securing APIs.
+
+* **Notes App with the PERN Stack (React, Node.js, Express, PostgreSQL):**  Built a full-stack application with secure JWT-based authentication for managing user-specific notes.  This highlights experience with a popular full-stack framework and secure authentication.
+
+
+**Experience**
+
+**Toronto Metropolitan University, Translational Medicine Laboratory, Toronto, ON**
+*Research Assistant* | May 2024 – August 2024
+
+* Awarded the Undergraduate Research Opportunities Award from the TMU Faculty of Science.
+* Developed a deep learning model (Siamese Network) to improve multimodal medical image registration, resulting in more precise alignment of medical images.
+* Conducted a comprehensive literature review, analyzing 25+ research papers on deep learning techniques for image registration.
+* Presented project proposals and led knowledge transfer sessions for incoming master’s students.
+* Technologies: Python (TensorFlow, NumPy, matplotlib), Jupyter Notebook
+
+
+**Additional Information**
+
+* Proficient in utilizing Git for version control and collaborative coding.
+* Strong problem-solving and analytical skills.
+* Demonstrated ability to work independently and as part of a team.
+* Eager to learn and adapt to new technologies and challenges.
+
+
+**Note:**  This resume is tailored to the job description.  If you have additional relevant experience (e.g., with specific testing tools or frameworks mentioned in the job description), be sure to incorporate it here for maximum impact.  Remember to replace bracketed information with your actual experience.

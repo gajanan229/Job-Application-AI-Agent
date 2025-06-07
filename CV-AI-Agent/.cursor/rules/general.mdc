@@ -1,0 +1,84 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# General Project & Development Rules
+
+## Planning & Process
+Description: Core development lifecycle practices.
+- **Plan Before Implementing:** Always create a clear plan or design (e.g., outline components, data flow, function signatures) before writing significant code. For complex features, consider creating a small technical design document.
+- **Test After Phases:** Write and run tests (unit, integration) after completing each distinct phase or module of implementation. Ensure existing tests pass before moving on.
+- **Virtual Environments:** Always create and use a Python virtual environment (e.g., `venv`) for this project. Activate it before installing packages or running any scripts/tests. Example: venv\Scripts\activate` on Windows.
+- **Requirements Management:** Always update the `requirements.txt` file immediately after installing or upgrading a new package. 
+
+## Overall Goal
+The primary goal is to build the "Application Factory" component of an internship application automation website. This component will take a user's master resume (PDF) and a job description (PDF), and using LangGraph with Google's Gemini LLM and RAG, generate a tailored resume and cover letter. The outputs will be DOCX files (formatted based on the example files in the Example CV/ folder) which are then converted to PDFs for download. The UI will be built with Streamlit.
+
+Refer to the detailed technical blueprint provided in previous interactions for component specifics.
+
+## Project Structure
+Adhere to the following directory structure:
+```
+application_factory/
+├── app.py                     # Main Streamlit application
+├── core/
+│   ├── graph.py               # LangGraph definitions (state, nodes, graph compilation)
+│   ├── rag_processor.py       # RAG pipeline components (loading, splitting, embedding, retrieval)
+│   ├── document_generator.py  # DOCX creation and PDF conversion logic
+│   └── llm_prompts.py         # Centralized storage for all LLM prompts
+├── Example CV/                # Folder containing example DOCX files
+│   ├── CoverLetter_GajananV_AAD.docx
+│   ├── Gajanan_Vig_Resume_AAD (1).docx
+│   ├── cover_letter_template.docx
+│   ├── resume_template.docx
+├── static/                    # (Optional) For CSS or other static assets
+├── utils/                     # Utility functions (e.g., file helpers)
+├── temp/                      # For temporary file storage (e.g., uploaded PDFs if not handled in memory) - ensure this is in .gitignore
+└── requirements.txt           # Project dependencies
+```
+- Create subdirectories as needed if a module grows too large, but prefer keeping `core` components distinct. 
+
+## Documentation 
+- **README.md:** At the project root, include:
+    - Project purpose.
+    - Setup instructions (installing dependencies, setting up API keys).
+    - How to run the application.
+    - Overview of the project structure. 
+- **Code Comments:**
+    - Use comments to explain *why* something is done if it's not obvious, not *what* it's doing (good code should be self-explanatory). 
+    - Comment complex logic or non-obvious decisions. 
+    - Keep comments up-to-date with code changes. 
+- **Docstrings:**
+    - Write clear, concise docstrings for all public modules, classes, functions, and methods. 
+    - Follow PEP 257 for docstring conventions. Use NumPy or Google style for detailed docstrings, especially for functions/methods with multiple parameters, return values, or raised exceptions. 
+    - The first line of a docstring should be a short, concise summary of the object's purpose. 
+    - Include information about parameters, return values (and their types), and any exceptions the function might raise. 
+
+## API Key Management 
+- **NEVER hardcode API keys directly in the source code.** 
+- Use environment variables to store API keys (e.g., `GOOGLE_API_KEY`).
+- The Streamlit application should prompt the user to enter their API key, which will be used for the session. This key should NOT be stored by the application persistently beyond the user's session unless explicitly designed for secure multi-user storage (which is out of scope for the initial build described).
+- For local development, a `.env` file (added to `.gitignore`) can be used to load environment variables (e.g., using `python-dotenv` library).
+- When accessing API keys from environment variables:
+  ```python
+  import os
+  from dotenv import load_dotenv
+
+  load_dotenv()
+  api_key = os.environ.get("GOOGLE_API_KEY")
+  if not api_key:
+      # Handle missing API key appropriately (e.g., prompt user, raise error)
+      st.error("Google API Key not found. Please set it as an environment variable or enter it in the sidebar.")
+  ```
+
+## Dependencies
+- List all project dependencies with their versions in `requirements.txt`.
+- Use virtual environments (e.g., `venv`) to manage project dependencies. 
+
+## General AI Agent Instructions
+- **Clarity and Confirmation:** Before implementing complex logic or generating large code blocks, briefly outline your understanding of the task and ask for confirmation if unsure. 
+- **Iterative Development:** Implement features in manageable chunks.
+- **Focus on the Blueprint:** Adhere strictly to the technical blueprint provided in previous messages. If a deviation seems necessary, ask for clarification first.
+- **Minimal Changes:** When refactoring or modifying existing code, make minimal, safe changes. Do not remove or break existing, functional code unless the task explicitly requires it. 
+

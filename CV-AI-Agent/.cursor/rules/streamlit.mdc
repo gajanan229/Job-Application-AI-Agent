@@ -1,0 +1,61 @@
+---
+description: 
+globs: app.py,pages/*.py
+alwaysApply: false
+---
+description: Rules and best practices for developing the Streamlit UI.
+
+# Streamlit Application Rules
+
+## UI Structure and Flow
+- The main application logic will be in `app.py`.
+- If the application grows, consider using a `pages/` directory for multi-page apps, as per Streamlit convention. [38, 45, 48]
+- Keep UI code separate from complex backend/business logic where possible. Functional code should reside in `core/` modules and be called from Streamlit UI elements. [45]
+
+## State Management [21, 44]
+- Use `st.session_state` for managing state across reruns and user interactions.
+- Initialize all `st.session_state` variables at the beginning of the app or when they are first needed.
+- Example:
+  ```python
+  if 'master_resume_path' not in st.session_state:
+      st.session_state.master_resume_path = None
+  if 'current_stage' not in st.session_state:
+      st.session_state.current_stage = 'upload'
+  ```
+
+## User Interface Elements
+- Use Streamlit widgets (`st.file_uploader`, `st.text_input`, `st.text_area`, `st.button`, `st.download_button`, `st.sidebar`, `st.expander`, etc.) appropriately for user interaction.
+- Provide clear labels and instructions for all UI elements.
+- For API key input, use `st.text_input(type="password")` and place it in the sidebar (`st.sidebar`). [4]
+- For file uploads (`master_resume.pdf`, `job_description.pdf`), use `st.file_uploader`.
+- For displaying generated DOCX files as PDFs:
+    - First, save the generated DOCX.
+    - Convert the DOCX to PDF using the `docx2pdf` library.
+    - Display the PDF using `st.pdf(pdf_path)`. (Note: `st.pdf` might require the PDF to be accessible via a URL or as bytes. If displaying a local file, ensure it's handled correctly. BytesIO might be useful here).
+    - Alternatively, provide a download button for the PDF directly.
+- Editing Interface for Resume Sections:
+    - All editable sections (Summary, Skills, Experience, Projects, Education) should appear on the *same page* within `st.text_area` or similar widgets when the user chooses to edit. Do not use separate tabs within Streamlit for each section during the edit phase.
+    - A "Save Changes & Update Preview" button should trigger regeneration of the DOCX/PDF preview with the edited content.
+- Download buttons (`st.download_button`) should be used for the final Resume (PDF and DOCX) and Cover Letter (PDF and DOCX).
+
+## Layout
+- Use `st.sidebar` for global settings like API key input or navigation if it becomes a multi-page app.
+- Use `st.columns` for side-by-side layout elements if needed.
+- Use `st.expander` to hide/show complex sections to keep the UI clean.
+
+## Performance
+- Use `st.cache_data` or `st.cache_resource` for expensive computations or loading data/models that don't change frequently. For this project, RAG retrievers or loaded LLM models (if applicable beyond API calls) could be candidates. However, since Gemini is API-based, caching will mostly apply to processed data from PDFs or RAG setup if it's slow.
+
+## Error Handling in UI
+- Use `st.error("User-friendly message")` to display errors to the user.
+- Use `st.warning()` for non-critical warnings.
+- Use `st.success()` for success messages.
+- Use `st.spinner("Processing...")` to indicate background activity during LLM calls or file processing.
+
+## File Paths
+- When dealing with uploaded files or generated files, manage paths carefully. Use `os.path.join()` for constructing paths to ensure cross-platform compatibility.
+- Ensure the `Example CV/` directory with `Example CV\resume_template.docx` and `Example CV\cover_letter_template.docx` is correctly referenced. These are critical for output formatting. They must be formated exactly 
+
+
+
+

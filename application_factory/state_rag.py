@@ -70,6 +70,14 @@ class GraphStateRAG(TypedDict):
     
     # Processing Metadata
     processing_metadata: Dict[str, Any]
+    
+    # Phase 4: LLM Integration Fields
+    llm_manager_initialized: bool
+    ai_generated_resume_sections: Dict[str, str]
+    ai_generated_cover_letter: Dict[str, Any]
+    extracted_job_skills: Dict[str, List[str]]
+    content_enhancement_applied: bool
+    ai_generation_timestamp: str
 
 
 def create_initial_state(
@@ -121,9 +129,17 @@ def create_initial_state(
             "projects": ""
         },
         
-        # Generated files
-        generated_resume_pdf_path="",
-        generated_cover_letter_pdf_path="",
+            # Generated files
+    generated_resume_pdf_path="",
+    generated_cover_letter_pdf_path="",
+    
+    # Phase 4: LLM Integration status and content
+    llm_manager_initialized=False,
+    ai_generated_resume_sections={},
+    ai_generated_cover_letter={},
+    extracted_job_skills={},
+    content_enhancement_applied=False,
+    ai_generation_timestamp="",
         
         # Cover letter components
         cover_letter_intro="",
@@ -459,4 +475,292 @@ def get_rag_status(state: GraphStateRAG) -> Dict[str, Any]:
         },
         "total_contexts": sum(len(chunks) for chunks in contexts.values()),
         "ready_for_generation": bool(state.get("vector_store_path", "") and state.get("master_resume_content", ""))
-    } 
+    }
+
+
+def update_pdf_paths(state: GraphStateRAG, resume_path: str = "", cover_letter_path: str = "") -> GraphStateRAG:
+    """
+    Update PDF file paths in the state.
+    
+    Args:
+        state (GraphStateRAG): Current state
+        resume_path (str): Path to generated resume PDF
+        cover_letter_path (str): Path to generated cover letter PDF
+        
+    Returns:
+        GraphStateRAG: Updated state
+    """
+    updated_state = state.copy()
+    
+    if resume_path:
+        updated_state["generated_resume_pdf_path"] = resume_path
+        updated_state["processing_metadata"]["resume_pdf_generated"] = True
+        logger.info(f"Resume PDF path updated: {resume_path}")
+    
+    if cover_letter_path:
+        updated_state["generated_cover_letter_pdf_path"] = cover_letter_path
+        updated_state["processing_metadata"]["cover_letter_pdf_generated"] = True
+        logger.info(f"Cover letter PDF path updated: {cover_letter_path}")
+    
+    return updated_state
+
+
+def get_pdf_status(state: GraphStateRAG) -> Dict[str, Any]:
+    """
+    Get PDF generation status information.
+    
+    Args:
+        state (GraphStateRAG): Current state
+        
+    Returns:
+        Dict[str, Any]: PDF status information
+    """
+    from pathlib import Path
+    
+    resume_path = state.get("generated_resume_pdf_path", "")
+    cover_letter_path = state.get("generated_cover_letter_pdf_path", "")
+    
+    status = {
+        "resume_pdf_path": resume_path,
+        "cover_letter_pdf_path": cover_letter_path,
+        "resume_pdf_exists": bool(resume_path and Path(resume_path).exists()),
+        "cover_letter_pdf_exists": bool(cover_letter_path and Path(cover_letter_path).exists()),
+        "job_folder_path": state.get("job_specific_output_folder_path", ""),
+        "ready_for_pdf_generation": all([
+            state.get("resume_sections", {}).get("summary", ""),
+            state.get("resume_sections", {}).get("skills", ""),
+            state.get("job_specific_output_folder_path", "")
+        ])
+    }
+    
+    # Add file sizes if files exist
+    try:
+        if status["resume_pdf_exists"]:
+            status["resume_pdf_size"] = Path(resume_path).stat().st_size
+        if status["cover_letter_pdf_exists"]:
+            status["cover_letter_pdf_size"] = Path(cover_letter_path).stat().st_size
+    except Exception as e:
+        logger.debug(f"Could not get PDF file sizes: {e}")
+    
+    return status
+
+
+def validate_state_for_pdf_generation(state: GraphStateRAG) -> Dict[str, Any]:
+    """
+    Validate that the state is ready for PDF generation.
+    
+    Args:
+        state (GraphStateRAG): Current state
+        
+    Returns:
+        Dict[str, Any]: Validation results with status and messages
+    """
+    validation = {
+        "ready": True,
+        "issues": [],
+        "warnings": []
+    }
+    
+    # Check resume sections
+    resume_sections = state.get("resume_sections", {})
+    required_sections = ["summary", "skills"]
+    
+    for section in required_sections:
+        if not resume_sections.get(section, "").strip():
+            validation["issues"].append(f"Missing required resume section: {section}")
+            validation["ready"] = False
+    
+    # Check optional but recommended sections
+    optional_sections = ["experience", "projects", "education"]
+    missing_optional = [s for s in optional_sections if not resume_sections.get(s, "").strip()]
+    if missing_optional:
+        validation["warnings"].append(f"Missing optional sections: {', '.join(missing_optional)}")
+    
+    # Check job folder path
+    if not state.get("job_specific_output_folder_path", ""):
+        validation["issues"].append("No job-specific output folder configured")
+        validation["ready"] = False
+    
+    # Check header text
+    if not state.get("resume_header_text", ""):
+        validation["warnings"].append("No resume header text configured")
+    
+    return validation
+
+
+# Phase 4: LLM Integration State Management Functions
+
+def update_llm_initialization_status(state: GraphStateRAG, initialized: bool) -> GraphStateRAG:
+    """
+    Update the LLM manager initialization status.
+    
+    Args:
+        state (GraphStateRAG): Current state
+        initialized (bool): Whether LLM manager is initialized
+        
+    Returns:
+        GraphStateRAG: Updated state
+    """
+    updated_state = state.copy()
+    updated_state["llm_manager_initialized"] = initialized
+    
+    if initialized:
+        import time
+        updated_state["ai_generation_timestamp"] = str(time.time())
+        logger.info("LLM manager initialized in state")
+    else:
+        logger.info("LLM manager deinitialized in state")
+    
+    return updated_state
+
+
+def update_ai_generated_resume_sections(state: GraphStateRAG, sections: Dict[str, str]) -> GraphStateRAG:
+    """
+    Update AI-generated resume sections in state.
+    
+    Args:
+        state (GraphStateRAG): Current state
+        sections (Dict[str, str]): Generated resume sections
+        
+    Returns:
+        GraphStateRAG: Updated state
+    """
+    updated_state = state.copy()
+    updated_state["ai_generated_resume_sections"] = sections.copy()
+    
+    # Also update the regular resume_sections for compatibility
+    updated_state["resume_sections"].update(sections)
+    
+    logger.info(f"Updated AI-generated resume sections: {list(sections.keys())}")
+    return updated_state
+
+
+def update_ai_generated_cover_letter(state: GraphStateRAG, cover_letter_data: Dict[str, Any]) -> GraphStateRAG:
+    """
+    Update AI-generated cover letter in state.
+    
+    Args:
+        state (GraphStateRAG): Current state
+        cover_letter_data (Dict[str, Any]): Generated cover letter components
+        
+    Returns:
+        GraphStateRAG: Updated state
+    """
+    updated_state = state.copy()
+    updated_state["ai_generated_cover_letter"] = cover_letter_data.copy()
+    
+    # Update individual components for compatibility
+    if "introduction" in cover_letter_data:
+        updated_state["cover_letter_intro"] = cover_letter_data["introduction"]
+    
+    if "body_paragraphs" in cover_letter_data:
+        updated_state["cover_letter_body_paragraphs"] = cover_letter_data["body_paragraphs"]
+    
+    if "conclusion" in cover_letter_data:
+        updated_state["cover_letter_conclusion"] = cover_letter_data["conclusion"]
+    
+    logger.info("Updated AI-generated cover letter in state")
+    return updated_state
+
+
+def update_extracted_job_skills(state: GraphStateRAG, skills_data: Dict[str, List[str]]) -> GraphStateRAG:
+    """
+    Update extracted job skills in state.
+    
+    Args:
+        state (GraphStateRAG): Current state
+        skills_data (Dict[str, List[str]]): Extracted and categorized skills
+        
+    Returns:
+        GraphStateRAG: Updated state
+    """
+    updated_state = state.copy()
+    updated_state["extracted_job_skills"] = skills_data.copy()
+    
+    total_skills = sum(len(skills) for skills in skills_data.values())
+    logger.info(f"Updated extracted job skills: {total_skills} skills in {len(skills_data)} categories")
+    return updated_state
+
+
+def update_content_enhancement_status(state: GraphStateRAG, applied: bool) -> GraphStateRAG:
+    """
+    Update content enhancement application status.
+    
+    Args:
+        state (GraphStateRAG): Current state
+        applied (bool): Whether content enhancement has been applied
+        
+    Returns:
+        GraphStateRAG: Updated state
+    """
+    updated_state = state.copy()
+    updated_state["content_enhancement_applied"] = applied
+    
+    if applied:
+        logger.info("Content enhancement applied and marked in state")
+    
+    return updated_state
+
+
+def get_llm_status(state: GraphStateRAG) -> Dict[str, Any]:
+    """
+    Get the current LLM integration status from state.
+    
+    Args:
+        state (GraphStateRAG): Current state
+        
+    Returns:
+        Dict[str, Any]: LLM status information
+    """
+    return {
+        "llm_manager_initialized": state.get("llm_manager_initialized", False),
+        "ai_generated_sections_count": len(state.get("ai_generated_resume_sections", {})),
+        "ai_cover_letter_ready": bool(state.get("ai_generated_cover_letter", {})),
+        "job_skills_extracted": bool(state.get("extracted_job_skills", {})),
+        "content_enhancement_applied": state.get("content_enhancement_applied", False),
+        "ai_generation_timestamp": state.get("ai_generation_timestamp", ""),
+        "available_sections": list(state.get("ai_generated_resume_sections", {}).keys()),
+        "extracted_skills_categories": list(state.get("extracted_job_skills", {}).keys())
+    }
+
+
+def validate_state_for_llm_generation(state: GraphStateRAG) -> Dict[str, Any]:
+    """
+    Validate that state is ready for LLM content generation.
+    
+    Args:
+        state (GraphStateRAG): Current state
+        
+    Returns:
+        Dict[str, Any]: Validation results
+    """
+    validation_result = {
+        "ready": True,
+        "issues": [],
+        "warnings": []
+    }
+    
+    # Check required inputs
+    if not state.get("master_resume_content", "").strip():
+        validation_result["issues"].append("Master resume content is required")
+        validation_result["ready"] = False
+    
+    if not state.get("job_description_content", "").strip():
+        validation_result["issues"].append("Job description is required")
+        validation_result["ready"] = False
+    
+    # Check LLM manager initialization
+    if not state.get("llm_manager_initialized", False):
+        validation_result["warnings"].append("LLM manager not initialized - will be initialized during generation")
+    
+    # Check vector store (for RAG enhancement)
+    if not state.get("vector_store_path", ""):
+        validation_result["warnings"].append("Vector store not available - generation will proceed without RAG enhancement")
+    
+    # Success message
+    if validation_result["ready"]:
+        logger.info("State validation passed for LLM generation")
+    else:
+        logger.error(f"State validation failed for LLM generation: {validation_result['issues']}")
+    
+    return validation_result 

@@ -1,0 +1,116 @@
+---
+description: 
+globs: *.py
+alwaysApply: false
+---
+
+description: Python-specific coding standards, style, and best practices.
+
+# Python Coding Standards & Best Practices
+
+## PEP 8 Compliance 
+- Adhere strictly to PEP 8, the official Python style guide. 
+- **Indentation:** Use 4 spaces per indentation level. No tabs. 
+- **Line Length:** Limit all lines to a maximum of 79 characters. For docstrings and comments, limit to 72 characters. Use Python's implied line continuation inside parentheses, brackets, and braces for wrapping long lines. 
+- **Blank Lines:**
+    - Surround top-level function and class definitions with two blank lines. 
+    - Use single blank lines within classes to separate methods. 
+    - Use blank lines sparingly inside functions to indicate logical sections. 
+- **Imports:**
+    - Imports should usually be on separate lines.
+    - Imports are always put at the top of the file, just after any module comments and docstrings, and before module globals and constants. 
+    - Group imports in the following order: 
+        1. Standard library imports (e.g., `os`, `sys`).
+        2. Related third-party imports (e.g., `streamlit`, `langchain`, `google.generativeai`).
+        3. Local application/library specific imports (e.g., `from core.graph import ...`).
+    - Use absolute imports. 
+    - Avoid wildcard imports (`from module import *`). 
+- **Whitespace:**
+    - Avoid extraneous whitespace in expressions and statements.
+    - Follow PEP 8 guidelines for whitespace around operators and after commas. 
+- **Naming Conventions:** 
+    - `snake_case` (lowercase_with_underscores) for:
+        - Functions
+        - Methods
+        - Variables
+        - Module names (short, all-lowercase, underscores can be used if it improves readability). 
+        - Package names (short, all-lowercase, underscores discouraged but permissible).
+    - `PascalCase` (CapitalizedWords, also known as CapWords) for:
+        - Classes
+        - Exception Names 
+    - `UPPERCASE_WITH_UNDERSCORES` for:
+        - Constants
+- **String Quotes:** 
+    - Use single quotes (`'`) or double quotes (`"`) consistently for strings. For this project, **prefer single quotes** unless a string itself contains a single quote.
+    - For triple-quoted strings (docstrings, multi-line strings), always use double quotes (`"""Docstring goes here."""`). 
+- **Comments:** Refer to `general_project_rules-always.mdc`.
+
+## Type Hinting 
+- **Use type hints for all function arguments, return values, and variables where it improves clarity.** [1, 7, 10, 17, 30, 41] This is mandatory for this project.
+- Be consistent with type hints throughout the codebase. 
+- Type hints should aid in understanding, not complicate the code. Keep them simple and readable. 
+- Use built-in generic types (e.g., `list[int]`, `dict[str, Any]`) for Python 3.9+. 
+- Use `Optional[X]` for values that can be `X` or `None`. (from `typing import Optional`). 
+- Use `Any` sparingly. If a type is truly dynamic or too complex to express, `Any` can be used, but prefer more specific types. (from `typing import Any`). 
+- For functions that do not return a value, use `-> None`.
+- Type hints do not replace docstrings; they complement them. Docstrings explain *what* and *why*, while type hints specify *what kind*. 
+- Example:
+  ```python
+  from typing import List, Dict, Optional, Any
+
+  def process_data(data: List[Dict[str, Any]], config_option: Optional[str] = None) -> bool:
+      """Processes a list of dictionaries.
+
+      Args:
+          data: A list of dictionaries to process.
+          config_option: An optional configuration string.
+
+      Returns:
+          True if processing was successful, False otherwise.
+      """
+      # ... implementation ...
+      return True
+  ```
+
+## Error Handling & Exceptions 
+- Handle exceptions specifically. Avoid broad `except Exception:` clauses unless you intend to re-raise or log and then re-raise. It's better to catch specific exceptions you expect (e.g., `ValueError`, `FileNotFoundError`). 
+- Keep `try` blocks small and focused on the specific lines of code that might raise an exception. [25, 28]
+- Use `finally` clauses for cleanup actions that must always occur (e.g., closing files), regardless of whether an exception occurred. 
+- Provide clear, user-friendly error messages when an exception is caught and needs to be communicated to the user (e.g., via `st.error()`). Avoid exposing raw tracebacks or sensitive system information to the end-user. 
+- Log exceptions with tracebacks for debugging purposes (use the `logging` module). [4, 25, 28]
+- When raising custom exceptions, ensure they inherit from `Exception` or a more specific built-in exception class. 
+- Example:
+  ```python
+  import logging
+
+  logger = logging.getLogger(__name__)
+
+  def read_file(file_path: str) -> Optional[str]:
+      try:
+          with open(file_path, 'r') as f:
+              return f.read()
+      except FileNotFoundError:
+          logger.error(f"File not found: {file_path}")
+          st.error(f"Error: The file {file_path} could not be found.")
+          return None
+      except IOError as e:
+          logger.error(f"IOError reading file {file_path}: {e}", exc_info=True)
+          st.error(f"An error occurred while reading the file: {e}")
+          return None
+  ```
+
+## Functions and Methods
+- Functions should be short and focused, ideally doing one thing well (Single Responsibility Principle). 
+- Use descriptive names for functions and their parameters.
+
+## General Python Best Practices
+- Follow the DRY (Don't Repeat Yourself) principle. 
+- Write explicit code over implicit code.
+- One statement per line generally. 
+- Use list comprehensions for concise creation of lists where appropriate, but prioritize readability.
+- Always use `with open(...)` for file operations to ensure files are closed properly.
+- Ensure all Python files use UTF-8 encoding. 
+
+
+
+

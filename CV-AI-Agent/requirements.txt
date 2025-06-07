@@ -1,0 +1,62 @@
+# Web framework
+streamlit>=1.31.0
+
+# Environment management
+python-dotenv>=1.0.0
+
+# Configuration
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# Logging
+colorlog>=6.7.0
+
+# File handling
+pathlib
+tempfile
+
+# Document processing for Phase 2 RAG
+PyPDF2>=3.0.0
+pdfplumber>=0.11.0
+
+# LangChain and AI components
+langchain>=0.3.0
+langchain-text-splitters>=0.3.0
+langchain-google-genai>=2.0.0
+google-generativeai>=0.8.0
+
+# LangGraph workflow engine
+langgraph>=0.4.0
+
+# Vector store and embeddings
+faiss-cpu>=1.8.0
+numpy>=1.25.0
+
+# Document generation (for future phases)
+python-docx>=1.1.0
+docx2pdf>=0.1.8
+
+# Image processing (for future phases)
+Pillow>=10.0.0
+
+# Data handling
+pandas>=2.0.0
+
+# HTTP requests
+requests>=2.31.0
+
+# Type hints
+typing-extensions>=4.7.0
+
+# Testing (for development)
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Utilities
+tqdm>=4.65.0
+
+# Security
+cryptography>=41.0.0
+
+# File type detection
+filetype>=1.2.0 

@@ -1,0 +1,25 @@
+Gajanan Vigneswaran
+Whitby, ON
+(647) 451-9995 | gajanan.vig@gmail.com | github.com/gajanan229
+
+[Date]
+
+Hiring Manager
+theScore
+[Address if known, otherwise omit]
+
+Dear Hiring Manager,
+
+PENN Entertainment's commitment to pushing the boundaries of online gaming and sports media, particularly through theScore's innovative platforms, deeply resonates with my passion for developing cutting-edge technology.  Learning about the QA Automation Engineer Co-op opportunity, I was immediately drawn to the chance to contribute to such a dynamic and impactful environment.
+
+My background in computer science, coupled with hands-on experience in software development and testing, aligns perfectly with the requirements of this role.  During my research assistantship at TMU's Translational Medicine Laboratory, I developed a deep learning model using Python and TensorFlow to improve multimodal medical image registration. This project demanded meticulous attention to detail, rigorous testing, and a systematic approach to problem-solving – skills directly transferable to building and maintaining robust automation frameworks for your API, web, and mobile applications.  The successful implementation of this model, which resulted in a more precise alignment process, demonstrates my ability to translate complex technical challenges into effective solutions.
+
+Furthermore, my experience building several full-stack applications, including a Flask web app for movie recommendations and a React.js portfolio blog with AI chatbot integration, has equipped me with a strong understanding of software development lifecycles (SDLC) and testing methodologies.  My proficiency in Python, Java, and various testing frameworks (including JUnit and experience with Git) directly addresses the technical skills outlined in the job description. While my experience with specific tools like Jenkins and Jira is limited, I am a highly adaptable and quick learner, confident in my ability to rapidly acquire the necessary expertise.
+
+I am particularly excited by the opportunity to collaborate with the QA Automation team at theScore, contributing to the testing and improvement of large-scale consumer-facing applications.  Your emphasis on open communication and a supportive work environment aligns perfectly with my collaborative work style and desire for continuous learning. I am eager to contribute my skills and enthusiasm to theScore's success.
+
+Thank you for considering my application.  I have attached my resume for your review and welcome the opportunity to discuss how my skills and experience can benefit your team. I am available for an interview at your earliest convenience.
+
+Sincerely,
+
+Gajanan Vigneswaran

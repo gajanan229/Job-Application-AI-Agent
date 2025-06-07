@@ -1,0 +1,7 @@
+{
+  "creation_timestamp": "2025-06-05T19:46:07.513759",
+  "num_documents": 1,
+  "embedding_model": "models/embedding-001",
+  "chunk_size": 1000,
+  "chunk_overlap": 200
+}
